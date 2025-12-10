@@ -1,6 +1,18 @@
 <?php
     $url = 'https://news.google.com/rss?hl=zh-TW&gl=TW&ceid=TW:zh-Hant';
-    $xmlContent = file_get_contents($url);
+    $cacheFile = __DIR__ . '/google_news_cache.xml';
+    $cacheTime = 60; // 緩存 60 秒
+
+    if (!file_exists($cacheFile) || (time() - filemtime($cacheFile)) > $cacheTime) {
+        $xmlContent = @file_get_contents($url);
+        if ($xmlContent === false) {
+            die('無法抓取 RSS');
+        }
+        file_put_contents($cacheFile, $xmlContent);
+    } else {
+        $xmlContent = file_get_contents($cacheFile);
+    }
+
     $xmlElement = new SimpleXMLElement($xmlContent);
 ?>
 
